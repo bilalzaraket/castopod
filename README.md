@@ -34,7 +34,10 @@ please contact us directly by email at
 
 ## Contributing
 
-Contributions are always welcome!
+We are a group of students in Polytech Nantes trying to add and participate in impoving and implementing new functionalities to castopod and creating a documentation for future students and developers
+
+The team:
+
 
 See the
 [contribution guidelines](https://docs.castopod.org/contributing/guidelines) for
