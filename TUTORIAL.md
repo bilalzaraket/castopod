@@ -99,7 +99,7 @@ This function checks the publish status of the episode. If the episode is not pu
 ####  public function attemptCommentReply(string $commentId)
 
 
- ##Media:
+ ## Media:
  
  The media folder is made of the following folders:
 - Config:
