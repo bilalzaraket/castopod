@@ -99,6 +99,203 @@ This function checks the publish status of the episode. If the episode is not pu
 ####  public function attemptCommentReply(string $commentId)
 
 
+ 
+ The media folder is made of the following folders:
+- Config:
+This folder contains three php files and configure the media module, where the media.php is used to do basic configuration like base url path and extentions, etc.
+As for the routes.php, it only defines one routes for this module which is: static/(:any). If we take an in depth look at the code we can see that at the beginning the $routes variable was initialized using the service('routes') helper function built-in in CodeIgniter where it retrieves and instance of the 'CodeIgniter\Router\RouteCollection' class (router class).
+The get function (the only one defined) is used to route requests for 'static/(:any)', where 'any' could take different values (file1, file2, etc.), to the serve function in the MediaController class with a parameter of $1.
+The $1 parameter is a variable representing the "any" variable defined in the routes field (file1, file2, etc.). For example, if 'static/file1' was requested, the serve(file1) would be called. 
+Furthermore, the other parameters used in the get function are supplementary parameters, where 'as' gives a name for our route ('static/(:any)') which makes it easier to use throughout our module and namespace indicates where is the MediaController found.
+
+The third file found in the Config folder is Services.php, where in this file a Services class is created which extends the BaseService class built-in in Codeigniter. This file is used to overrides some of the built-in Codeigniter services to use application-specific services you define. In this case, the defined function is file_manager function which returns a FileManager interface. This function receives one parameter set by default to true, which is the "getShared" parameter. In case getShared was True, the default file_manager is used using the getSharedInstance function defined in BaseService.
+In case the getShared parameter was set to False, a $config variable for Media is created (Media/Config/Config.php) and the fileManagerClass is imported according to the fileManager array defined in Config.php. For example, if the '$fileManager' property is set to 'fs', then $fileManagerClass would hold the value 'Modules\Media\FileManagers\FS'. (two available fileManagers defined in the config.php: fs and s3. In the current instance the 'fs' property is chosen since public string $fileManager = 'fs').
+
+In conclusion, I'll give a step by step explanation of the file_Manager function:
+1- if getShared = true, self::getSharedInstance('file_manager') is returned which is already defined in CodeIgniter\Config\BaseService. Hence, the application still uses the behaviour defined in codeigniter.
+2-if getShared is False, the config defined in Media.php is imported to the $config variable.
+3- $fileManagerClass = $config->fileManagers[$config->fileManager];
+In this line of code the fileManagers dictionary defined in 'Config.php' is accessed and the class of key = '$config->fileManager' is retrieved. We can check the config.php file where fileManager is set to 'fs'. The fileManagers dictionary maps 'fs' to the FS class defined in Media/FileManagers. In conclusion, $fileManagerClass is equal to FS::class
+4-A new instance of the FS class is created
+5- If the fileManager defined class implements FileManagerInterface it is returned, otherwise an exception is thrown.
+
+To give the best understanding of this module, We will now study the FileManagers folder/namespace used frequently in the Config folder.
+
+FileManangers:
+As defined in the Config.php, there are two defined file managers in the current Castopod application, the FS and the S3 managers which both implement the FileManagerInterface.
+
+We'll take a top-down approach in this explanation where we'll start with the FileManagerInterface and then study FS and S3.
+
+FileManagerInterface:
+This interface defines several functions such as:
+- save : takes a file object and a string which represents the name of the file to save and returns either a string or false, it would be most probably used for saving audio files.
+- delete: takes a string parameter: key. It gets the name of the file and deletes it.
+- getUrl: takes a string parameter "key"
+- rename: takes a string parameter "oldkey" which represents the name of the file targeted, and another string parameter "newKey" which is the new name of the file. Hence this function is used to update the name of a file and returns a boolean to indicate the success or failure of the operation
+- getFileContents: takes a string parameter: key
+- getFileInput: takes a string parameter: key
+- deletePodcastImageSizes
+- deletePersonImagesSizes
+- deleteAll
+- isHealthy
+- serve
+
+### FS:
+
+The FS class implements the FileManagerInterface in order manage saved data (podcasts, people, images) for the server's file system.
+
+The constructor of this class __construct receives the config file defined in Config/Media.php as an input. This config file will be later used for defining the main roots.
+
+Before explaining the public functions used for managing the file system, we need to define a helper private function used throughout the class:
+
+#### media_path_absolute(string | array $uri = ''): string (private function):
+
+It takes a string/array `uri`, converts it to a string in case it was an array, removes the final `/` in the string, and then returns `storage defined in Config/Media.php`/ `root defined in Config/Media.php`/ `uri`.
+
+Using the most recent Config file:
+take $uri = '' (default value)
+
+returns : `ROOTPATH .public/media/`
+
+
+
+
+#### save(File $file, string $path): string | false:
+
+This function receives a file object and a string that defines the path where the file should be saved.
+Steps:
+
+- It checks if a path extension is available in `$path` using the pathinfo function ( PHP function that returns an associative array containing information about the path including the directory name, basename, extension, and filename). In case no path extension (.mp3, .jpeg, ...) was found the file object had a defined extension ( retrieved through `$file->getExtension()`), the retrieved extension will be added to the `$path` extension.
+
+- media_path_absolute() is called to add the root and storage paths
+
+- checks if the file path ($path string appended to the root) exists, if not, it creates the directory and names it.
+
+- checks if an index.html file is available in the directory, if not it create an empty one. This is a common practice to prevent directory listing and leak of sensitive information, where in this case the server will display the content of index.html (empty) instead of all available directories
+
+- The functions tries to move the file object to the final path, and finally it either returns the path string or returns false in case of failure.
+
+#### public function delete(string $key): bool:
+
+This function uses the media_path_absolute to get the full path added to `key` part and then deletes it from the file system using the unlink built-in php method.
+Note: the use of `@` in the call for unlink is to supress any error messages that could be thrown in case the file wasn't available.
+
+#### getUrl(string $key): string:
+/// forget it:shouldn't "helper('media') be added??"
+returns the output of the media_url helper function which will be later explained in the helpers section.
+
+#### The following functions all use built-in php functions and return their output:
+- rename(string $oldKey, string $newKey): bool
+- getFileContents(string $key): string|false
+- getFileInput(string $key): string
+
+#### deleteAll(string $prefix, string $pattern = '*'): bool: 
+
+In case the pattern was *, this means that the function will delete all the contents of the folder (prefix). delete_files built-in function is imported using helper('filesystem') and is called on the absolute path.
+
+If the pattern is different, eg: image_*.png (which represents all the files with a name that starts with `image_` and is of png format), the glob built-in function is used to get all the paths with the absolute path and pattern specified. If no paths have this pattern, the function returns `true`, else it uses `unlink` built in function to delete all the files with the given format and returns true.
+
+#### public function deletePodcastImageSizes(string $podcastHandle): bool:
+
+deletes all the files with the path extension of `podcasts/{$podcastHandle}` (where podcast handel is defined in the podcast model class) and with a format of 'jpg', 'jpeg', 'png', 'webp' (podcast images). In order to carry out this operation, the deleteAll function previously explained is used.
+
+#### deletePersonImagesSizes(): bool:
+This function does exactly the same as the previous one but deletes person images instead (path extension: persons)
+
+Note: For the last two functions the two folders inside of `media` root folder were used: 'podcasts' and 'persons'. These two directories were defined in the Config/Media.php file in the $folders dictionary.
+
+#### isHealthy(): bool:
+This function uses the is_really_writable built-in function which checks if the server-side system can modify and edit the directory or not.
+
+#### serve(string $key): Response:
+
+Redirects the page to the Url returned by the getUrl function explained above.
+
+
+### S3 class:
+
+Amazon S3 (Simple Storage Service) is an object storage service offered by Amazon Web Services (AWS). It provides scalable storage for objects such as images, videos, documents, and other files. 
+
+This class defines an interface to interact with aws S3 and store our files where it implements the functions defined in FileManagerInterface.
+
+Two libraries are used by this class: the S3Client to create a connection with amazon S3 and thus store files, and the Credentials library to indicate the credentials of the user (the key and the secret code)
+
+The following aws s3 client methods where used in this class:
+- putObject
+- deleteObject
+- copyObject
+- getObject
+- getPaginator
+- doesBucketExist
+- headBucket
+Check the AWS SDK API documentation for PHP for furthur info:
+https://docs.aws.amazon.com/aws-sdk-php/v3/api/namespace-Aws.S3.html
+
+
+
+#### public function __construct(protected MediaConfig $config):
+The constructor receives the MediaConfig object (configuration class defined in Media/Config/Media.php). Then uses the s3 array defined in the config class to create the S3Client. It indicates the version, region of the s3 bucket, endpoint, credentials, and more.
+
+#### public function save(File $file, string $key): string|false:
+Uses the putObject command available for the s3client to store the file passed as a parameter in the AWS bucket (defined in the configuration file). This function receives the bucket, the key, sourceFile, and the contentType (html, json, text, etc. through the function getMimeType which just returns the format of the file).
+In case the object upload to AWS worked, the function deletes the file from the server storage (unlink) and returns the key (name of the file), otherwise it returns false.
+
+#### public function delete(string $key): bool:
+
+Similar to most of the functions in this class it calls a function predefined for s3Client which is in this case: deleteObject which deletes the file with name `key`.
+
+#### public function getUrl(string $key): string:
+
+This function has just one line: return media_url((string) route_to('media-serve', $key));
+
+First, Config/Routes.php is used to route to the function defined in MediaController called serve($key)
+After that, the serve function returns a value which is cast to a string and then passed to the `media_url` function we already explained.
+
+(add more explanation)
+
+#### public function rename(string $oldKey, string $newKey): bool:
+The function first copies the object found in the aws s3 bucket with name `oldkey` and stores it it with a new name `newKey` using the s3->copyObject function. It then deletes the object with the old key and returns it.
+
+#### public function getFileContents(string $key): string|false:
+The function calls the getObject method and then retrieves the body of the object returned through the `$result->get('Body')` function.
+
+#### public function getFileInput(string $key): string:
+This function just returns the url of the file with the name `key` using getUrl function
+
+#### public function deletePodcastImageSizes(string $podcastHandle): bool:
+The function loops over all the files with an image format and calls deleteAll on every image with the name podcastHandle inside the `podcasts/` directory.
+
+#### public function deletePersonImagesSizes(): bool:
+
+Does the same as the previous function but deletes any image in the `persons` directory.
+
+#### public function deleteAll(string $prefix, ?string $pattern = '*'): bool:
+This function was used in both of the previous functions. It uses the getPaginator function which is used to retrieve large sets of data and returns it as several subsets in a more memory-efficient way.
+(The getPaginator function uses the ListObjectsV2 aws api)
+
+Next, the function iterates over all the returned files, and checks which files (objects) have the same key as the `pattern` variable (pattern = prefix.pattern).
+
+After retrieving all the files that should be deleted and storing their keys into the `objectsToDelete` array, the s3->deleteObjects function is called (the array is passed as the second parameter)
+
+#### public function isHealthy(): bool:
+
+This function first checks if the bucket is available on amazon s3 using the `s3->doesBucketExist(string)` function, and in case it available it then checks if the bucket could be accessed. It checks the accessability of the bucket using the `s3->headBucket` function (checks if the user has permission to access the bucket).
+
+#### public function serve(string $key): Response:
+
+Function description:
+1- A response Object is returned using the Codeigniter service function with parameter 'response'. A Response object is an instance of the `CI_Output` class and is used to return HTTP responses to the clients. It provides methods to set the HTTP headers, setting the response body, and sending the response to the client.
+2- It tries to get the object with the key : `key`.
+3- It removes the predefined Cache-Control header using the header_remove function
+4- It redefines the cache parameters(max-age, etag, public: parameters representing the freshness of the response), sets the content type of the response (format), and sets the body to the contents of the retrieved file. Finally, it returns the response object.
+
+-Controllers
+Database/Migrations
+Entities
+
+Helpers
+Models
+
 
 
 
