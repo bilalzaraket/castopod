@@ -4,11 +4,15 @@ To use the OC library to interact with Nextcloud and store data on it we need to
 See the following forums:
 
 https://help.nextcloud.com/t/database-errors-on-first-setup/102024/18
+
 https://help.nextcloud.com/t/installation-on-windows-7/4408
+
 1- Install the Nextcloud server:
 
 To Download the Nextcloud server we need to perform the following steps:
+
 Note: I added some steps in each main step, which depend on each user's installation process, machine, OS, and other factors
+
 1- Download and install XAMPP: Nextcloud requires a web server (In this case Apache), a database server (MySQL in this case), and PHP to run. XAMPP is an open-source platform that includes all these components. You can download XAMPP from the official Apache Friends website and follow the installation instructions.
 download of XAMPP: https://sourceforge.net/projects/xampp/files/latest/download
 
