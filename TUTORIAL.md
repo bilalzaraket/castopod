@@ -1,4 +1,80 @@
 # Documentation
+
+## Introduction to MVC:
+
+
+## A top-down study:
+
+This is a top-down study of the Castopod repository for future reference:
+The architecture on which Castopod is built is an MVC architecture using the PHP CodeIgniter framework.
+This architecture consists of three main parts:
+Model: is responsible for all data manipulation and other data operations.
+
+View: displays the application interface and changes it as certain events occur or data changes
+
+Controller: is the bridge between the two previous components. In short, it takes user input, sends it to the model component which makes the changes to the data and the database, and then sends the changes to the View component to modify the interface.
+ 
+These three components will appear explicitly and implicitly in the architecture of the code.
+The main files of the repository on which we will work are:
+Application :
+The application contains most of the code, in other words it contains our application, it defines the routes in the application (app/config/routes.php), it defines the controllers, the migrations and seeds of the database, entities, filters, some helper functions and much more.
+This will be discussed in depth later in our analysis.
+Modules:
+Modules are used to define sub-parts in an application, it contains sub-folders, each serves as its own (standalone) sub-application with its routes and controllers. One of the folders inside the modules folder is the Admin folder. In this castopod test phase, most of the functionality of the application (website) is limited to the administrator.
+Audience:
+Contains images, icons and public data used in the front-end
+Topics:
+This folder contains most of the front-end of the application, which you will find in the cp_admin part, (frontend, for podcast, episode, person, …)
+Testing:
+Some tests are defined in this folder, to be applied individually
+ 
+Some files are important to note, such as:
+.env.example: In .env files, database, email, cookie, encryption, application and media URLs, gateways, API configurations are defined.
+Another important file is vit.config.ts, which carries many Vite.js configuration files used in the Themes folder to import different javascript libraries for use in the frontend.
+There are many other main folders defined, such as .github, build, docker, initdb, scripts, .husky, .. But these folders will not be used during our work on adding features to castopod.
+ 
+
+
+We will now give a detailed explanation of the application components, modules and themes:
+  Application :
+The first folder inside the app is the configuration folder, which contains configurations for various components, including colors, cookies, cache, exceptions, images, and most importantly, routes.
+Routes are used to map URL patterns to a management function, so in case a user visits a certain part of the application, the function would be called, additionally, that router could be called from different parts of the application using its keyword.
+ 
+Example :
+$routes->post('action', 'PostController::attemptAction/$1/$2', [
+             'as' => 'post-attempt-action',
+             'filter' => 'permission:podcast#.interact-as',
+         ]);
+In this code, when the POST command is called in the action url, the tryAction function, defined in the PostController (Controller folder in the App folder) is called with parameters 1 and 2. If we want to use this route , we can use the "post-attempt-action" keyword. (defined using as)
+
+Controllers:
+Many controller files are defined in this folder, which provide functions to manage podcasts, streams, episodes, colors, actors, etc. All of these controller classes extend a base class which is BaseController.
+ 
+BaseController.php:
+Contains the initController function which is used by CodeIgniter to automatically create the base controller, initialize some helpers, and set the application theme.
+This controller inherits from the Controller class in codeigniter.
+EpisodeController.php:
+This controller uses models (episode, podcast models) and entities and has four main functions, which are index, activity, _remap, embed. The index is used to get the episode and the podcast (using the patterns to get the data from the database).
+PodcastController.php: has the following functions: episodes, about, activity, podcastActor, _remap
+ 
+Entities:
+Define frequently used objects and are similar to objects in object-oriented programming. In the castopod repository, many entities are defined. One of these entities is Podcast.php.
+The podcast entity has many attributes including actor, id, handle, url, … and several functions, mainly setters and getters.
+There is also an episode entity which contains attributes like id, podcast_id, link, etc. and contains several functions, mainly getters and setters, which defines the episode audio file, transcript, title, etc.
+ 
+Models:
+The models folder contains the commands needed to store episodes, podcasts, users, etc. via episodeModel, PodcastModel, …
+ 
+Now let's take a look at the modules folder:
+Modules:
+The main folder inside this directory that we will focus on is the admin (module) folder. The administrator has his own configuration and controllers. In the controllers folder, many classes extend the classes already defined in the application folder. These controllers contain many additional features. One of the controllers that needs closer examination for our upcoming work is the PodcastImportController.php.
+An important note is that all admin-related routes (e.g. routes used in the themes folder) are defined in the modules/config/routes file
+ 
+
+Themes:
+This folder contains most of the front end code, using php, html, css and some javascript.
+Looking at the cp_admin directory:
+There is an episode folder which contains files like: create, edit, delete, list .php which creates all the forms for episode creation and for each input in the form routes it to a controller function .
 ## Themes:
 ### Podcast:
 
