@@ -101,8 +101,7 @@ Another example is :
 I gave this example just to clarify what lang is:
 Lang gives different values depending on the languages chosen, you could access this data in the cp_admin/languages.
 
-- Delete.php:
-- Import.php:
+- Other theme files: Delete.php, Import.php
 
 
 ## Controllers (Cp_admin/controllers/EpisodeController) :
@@ -156,6 +155,9 @@ This function deletes the transcript of a certain episode. First the function ch
 Deletes episode chapters
 ####  public function publish(): string | RedirectResponse
 This function checks the publish status of the episode. If the episode is not published, it creates a form with the data including the podcast and episode properties of the controller and returns the view “episode/publish” with the retrieved data.
+
+### Other functions available:
+ 
 ####  public function attemptPublish(): RedirectResponse
 ####  public function publishEdit(): string | RedirectResponse
 ####  public function attemptPublishEdit(): RedirectResponse
