@@ -1,5 +1,10 @@
 To use the OC library to interact with Nextcloud and store data on it we need to perform the following steps:
 
+** NextCloud doesn't support Windows installation **
+See the following forums:
+
+https://help.nextcloud.com/t/database-errors-on-first-setup/102024/18
+https://help.nextcloud.com/t/installation-on-windows-7/4408
 1- Install the Nextcloud server:
 
 To Download the Nextcloud server we need to perform the following steps:
