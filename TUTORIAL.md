@@ -105,7 +105,7 @@ Lang gives different values depending on the languages chosen, you could access 
 - Import.php:
 
 
-## Controllers `Cp_admin/controllers/EpisodeController` :
+## Controllers (Cp_admin/controllers/EpisodeController) :
 
 In this controller, two models are used: A Podcast model, and an Episode model
 ### Functions:
