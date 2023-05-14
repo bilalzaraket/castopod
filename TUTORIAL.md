@@ -196,12 +196,12 @@ In this line of code the fileManagers dictionary defined in 'Config.php' is acce
 
 To give the best understanding of this module, We will now study the FileManagers folder/namespace used frequently in the Config folder.
 
-FileManangers:
+- FileManangers:
 As defined in the Config.php, there are two defined file managers in the current Castopod application, the FS and the S3 managers which both implement the FileManagerInterface.
 
 We'll take a top-down approach in this explanation where we'll start with the FileManagerInterface and then study FS and S3.
 
-FileManagerInterface:
+### FileManagerInterface:
 This interface defines several functions such as:
 - save : takes a file object and a string which represents the name of the file to save and returns either a string or false, it would be most probably used for saving audio files.
 - delete: takes a string parameter: key. It gets the name of the file and deletes it.
@@ -364,12 +364,12 @@ Function description:
 3- It removes the predefined Cache-Control header using the header_remove function
 4- It redefines the cache parameters(max-age, etag, public: parameters representing the freshness of the response), sets the content type of the response (format), and sets the body to the contents of the retrieved file. Finally, it returns the response object.
 
--Controllers
-Database/Migrations
-Entities
+- Controllers
+- Database/Migrations
+- Entities
 
-Helpers
-Models
+- Helpers
+- Models
 
 
 
