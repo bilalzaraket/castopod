@@ -25,7 +25,8 @@ Modules are used to define sub-parts in an application, it contains sub-folders,
 Contains images, icons and public data used in the front-end
 ### Topics:
 This folder contains most of the front-end of the application, which you will find in the cp_admin part, (frontend, for podcast, episode, person, …)
-Testing:
+
+### Testing:
 Some tests are defined in this folder, to be applied individually
  
 Some files are important to note, such as:

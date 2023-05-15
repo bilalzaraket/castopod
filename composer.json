@@ -24,7 +24,8 @@
     "chrisjean/php-ico": "^1.0.4",
     "melbahja/seo": "^v2.1.1",
     "codeigniter4/shield": "v1.0.0-beta.3",
-    "aws/aws-sdk-php": "^3.261.10"
+    "aws/aws-sdk-php": "^3.261.10",
+    "nextcloud/ocp": "^v25.0.4"
   },
   "require-dev": {
     "mikey179/vfsstream": "^v1.6.11",
