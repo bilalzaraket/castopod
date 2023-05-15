@@ -80,7 +80,7 @@ There is an episode folder which contains files like: create, edit, delete, list
 I’ll start by the properties that are only available for the admin:
 - create page:
 
-This page is displayed when the user pressed “New Podcast” button on the side bar.
+This page is displayed when the user presses “New Podcast” button on the side bar.
 The most important thing in this page to focus on is the form of class "flex flex-col w-full max-w-xl gap-y-6",
 The action (after submission) of this form is routed to PodcastController.php (This controller is found in modules/cp_admin/controllers) . How to check and know that? You can use the routes.php in cp_admin/config, where you search for the “podcast-create” keyword. In the routes file, there are different router groups, that connect different links, or even frontend components, to different actions defined by controllers.
 In this section I am only visiting the Themes (frontend) thus the explanation of different actions of different components will be given in the Controllers section. 
